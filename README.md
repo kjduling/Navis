@@ -12,12 +12,20 @@ To demonstrate the following skills:
 * Spring Data / JPA
 * Documentation via Swagger
 * Microservices
-* Unit and Intergration tests
+* Unit and Integration tests
 ## Usage
- Application interaciton can be achieved by using Postman or Swagger to generate the REST requests.
- Swagger should be reachable at http://localhost:8080/navis/swagger-ui.html
  
- ### Steps
+ ### To Run
+ This is a Spring Boot project with Gradle.
+ #### Compile
+ ./gradlew clean build
+ #### Run
+ ./gradlew bootRun
+ 
+ Application interaction can be achieved by using Postman or Swagger to generate the REST requests.
+ Swagger should be reachable at http://localhost:8080/navis/swagger-ui.html
+
+ ### Actions
  * Upload a minefield file with <br><b>POST /navis/v1/minefield/upload</b>
  * Verify the minefield was saved to the database<br><b>GET /navis/v1/minefield/get</b>
  * Find all the solutions<br><b>GET /navis/v1/minefield/solve

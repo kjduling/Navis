@@ -2,7 +2,6 @@ package com.navis.mines.service;
 
 import com.navis.mines.model.Mine;
 import com.navis.mines.model.Solution;
-import com.navis.mines.model.State;
 import com.navis.mines.persistence.MinefieldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,15 +27,13 @@ public class MinefieldService
    * @param potential the mine that may explode given its proximity
    * @return <EM>TRUE</EM> if the potential mine explodes, otherwise <EM>FALSE</EM>
    */
-  static boolean detonate(Mine exploding, Mine potential)
+  static boolean detonate(Mine exploding, Mine potential, List<Mine> affectedList)
   {
     // Only work with mines that aren't exploded
-    if (exploding.getState()
-                 .equals(State.SPENT)) return false;
+    if (affectedList.contains(exploding)) return false;
 
     // The potential mine must be untouched to additionalMineCount
-    if (!potential.getState()
-                  .equals(State.PRIMED)) return false;
+    if (affectedList.contains(potential)) return false;
 
     return detonate(exploding.getX(), exploding.getY(), exploding.getRadius(), potential.getX(), potential.getY());
   }
@@ -87,6 +84,7 @@ public class MinefieldService
 
   /**
    * Read the file input from the user and store the mines to the database
+   *
    * @param minefieldFile a file containing all of the mines
    * @throws IOException thrown if there is a problem reading the file
    */
@@ -104,7 +102,7 @@ public class MinefieldService
    * @return A list of mines
    * @throws IOException thrown if there is a problem reading the input stream
    */
-  List<Mine> readMines(InputStream in)
+  public List<Mine> readMines(InputStream in)
   throws IOException
   {
     List<Mine> mineList = new ArrayList<>();
@@ -117,7 +115,6 @@ public class MinefieldService
                       .x(Float.parseFloat(values[0]))
                       .y(Float.parseFloat(values[1]))
                       .radius(Float.parseFloat(values[2]))
-                      .state(State.PRIMED)
                       .build();
       mineList.add(mine);
     }
@@ -133,8 +130,10 @@ public class MinefieldService
   {
     List<Mine> minefield = minefieldRepository.findAll();
     List<Solution> solutionList = new ArrayList<>();
+
     for (Mine mine : minefield)
       solutionList.add(solveForMine(mine, minefield));
+
     return solutionList;
   }
 
@@ -147,33 +146,25 @@ public class MinefieldService
    */
   Solution solveForMine(Mine mine, List<Mine> minefield)
   {
-    // To determine the solution, we're going to be changing the state of the mines
-    // so we will work with a copy of the data
-    List<Mine> field = new ArrayList<>(minefield.size());
-    field.addAll(minefield);
-
     List<Mine> affectedMines = new ArrayList<>();
-    for (Mine m : field)
+    affectedMines.add(mine);
+    for (Mine m : minefield)
     {
-      if (detonate(mine, m))
-      {
-        m.setState(State.EXPLODING);
+      if (detonate(mine, m, affectedMines))
         affectedMines.add(m);
-      }
     }
-
-    mine.setState(State.SPENT);
 
     Solution intermediate = null;
     for (Mine affected : affectedMines)
     {
-      intermediate = solveForMine(affected, field);
+      intermediate = solveForMine(affected, minefield);
     }
+
     if (intermediate != null) affectedMines.addAll(intermediate.getAdditionalMineList());
 
     Solution solution = new Solution();
     solution.setMine(mine);
-    solution.setAdditionalMineCount(affectedMines.size() + 1);
+    solution.setAdditionalMineCount(affectedMines.size());
     solution.setAdditionalMineList(affectedMines);
     return solution;
   }
