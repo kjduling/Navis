@@ -3,6 +3,7 @@ package com.navis.mines.service;
 import com.navis.mines.model.Mine;
 import com.navis.mines.model.Solution;
 import com.navis.mines.persistence.MinefieldRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +15,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class MinefieldService
 {
@@ -53,7 +55,9 @@ public class MinefieldService
    */
   static boolean detonate(Float x1, Float y1, Float r, Float x2, Float y2)
   {
-    return r <= Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+    double result = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+    log.debug("Radius: {}, Distance: {}, result: {}", r, result, r <= result);
+    return r <= result;
   }
 
   /**
@@ -63,6 +67,7 @@ public class MinefieldService
    */
   public List<Mine> getMines()
   {
+    log.debug("loading mines from database");
     return minefieldRepository.findAll();
   }
 
@@ -71,6 +76,7 @@ public class MinefieldService
    */
   public void clearField()
   {
+    log.debug("clearing database");
     minefieldRepository.truncate();
   }
 
@@ -81,6 +87,7 @@ public class MinefieldService
    */
   public void store(List<Mine> mines)
   {
+    log.debug("Storing {} mines to the database", mines.size());
     minefieldRepository.saveAll(mines);
     minefieldRepository.flush();
   }
@@ -94,6 +101,7 @@ public class MinefieldService
   public void loadMinefield(MultipartFile minefieldFile)
   throws IOException
   {
+    log.debug("Reading in new file {}", minefieldFile.getName());
     List<Mine> mineList = readMines(minefieldFile.getInputStream());
     store(mineList);
   }
@@ -119,6 +127,7 @@ public class MinefieldService
                       .y(Float.parseFloat(values[1]))
                       .radius(Float.parseFloat(values[2]))
                       .build();
+      log.debug("Created mine {}", mine.toString());
       mineList.add(mine);
     }
     return mineList;
@@ -135,7 +144,10 @@ public class MinefieldService
     List<Solution> solutionList = new ArrayList<>();
 
     for (Mine mine : minefield)
+    {
+      log.debug("Solving for {}", mine);
       solutionList.add(solveForMine(mine, minefield));
+    }
 
     return solutionList;
   }

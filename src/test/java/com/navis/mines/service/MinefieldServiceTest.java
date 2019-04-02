@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.nio.charset.StandardCharsets;
@@ -20,6 +21,7 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@ActiveProfiles({"local"})
 public class MinefieldServiceTest
 {
 
@@ -43,7 +45,12 @@ public class MinefieldServiceTest
     Mine mine2 = new Mine(2L, 2f, 2f, 0f);
     List<Mine> affectedList = new ArrayList<>();
     assertTrue(MinefieldService.detonate(mine1, mine2, affectedList));
+
     affectedList.add(mine2);
+    assertFalse(MinefieldService.detonate(mine1, mine2, affectedList));
+
+    affectedList.clear();
+    affectedList.add(mine1);
     assertFalse(MinefieldService.detonate(mine1, mine2, affectedList));
   }
 
