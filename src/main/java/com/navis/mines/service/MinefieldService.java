@@ -55,6 +55,7 @@ public class MinefieldService
    */
   static boolean detonate(Float x1, Float y1, Float r, Float x2, Float y2)
   {
+    // TODO: Question this formula -- I don't think it's correct based on the results
     double result = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
     log.debug("Radius: {}, Distance: {}, result: {}", r, result, r <= result);
     return r <= result;
