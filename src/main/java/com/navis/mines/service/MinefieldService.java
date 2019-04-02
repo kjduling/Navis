@@ -23,17 +23,20 @@ public class MinefieldService
   /**
    * Given a mine, determine if its blast radius will detonate another mine
    *
-   * @param exploding the mine that is exploding
-   * @param potential the mine that may explode given its proximity
+   * @param exploding    the mine that is exploding
+   * @param potential    the mine that may explode given its proximity
+   * @param affectedList a list of mines that have already been affected by the exploding mine, so they should be excluded
    * @return <EM>TRUE</EM> if the potential mine explodes, otherwise <EM>FALSE</EM>
    */
   static boolean detonate(Mine exploding, Mine potential, List<Mine> affectedList)
   {
     // Only work with mines that aren't exploded
-    if (affectedList.contains(exploding)) return false;
+    if (affectedList.contains(exploding))
+      return false;
 
     // The potential mine must be untouched to additionalMineCount
-    if (affectedList.contains(potential)) return false;
+    if (affectedList.contains(potential))
+      return false;
 
     return detonate(exploding.getX(), exploding.getY(), exploding.getRadius(), potential.getX(), potential.getY());
   }
@@ -147,20 +150,17 @@ public class MinefieldService
   Solution solveForMine(Mine mine, List<Mine> minefield)
   {
     List<Mine> affectedMines = new ArrayList<>();
-    affectedMines.add(mine);
+
     for (Mine m : minefield)
-    {
       if (detonate(mine, m, affectedMines))
         affectedMines.add(m);
-    }
 
     Solution intermediate = null;
     for (Mine affected : affectedMines)
-    {
       intermediate = solveForMine(affected, minefield);
-    }
 
-    if (intermediate != null) affectedMines.addAll(intermediate.getAdditionalMineList());
+    if (intermediate != null)
+      affectedMines.addAll(intermediate.getAdditionalMineList());
 
     Solution solution = new Solution();
     solution.setMine(mine);

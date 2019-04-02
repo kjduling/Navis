@@ -6,6 +6,7 @@ import com.navis.mines.response.SolutionResponse;
 import com.navis.mines.service.MinefieldService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +63,9 @@ public class MinefieldController
                                       message = "Bad Request"),
                          @ApiResponse(code = 500,
                                       message = "Internal Server Error")})
-  public ResponseEntity<?> upload(@RequestParam MultipartFile file)
+  public ResponseEntity<?> upload(@ApiParam(value = "value",
+                                            name = "name",
+                                            required = true) @RequestParam("file") MultipartFile file)
   {
     try
     {

@@ -32,13 +32,19 @@ public class MinefieldServiceTest
   @Test
   public void detonate()
   {
-    assertTrue(MinefieldService.detonate(1f, 1f, 1f, 2f, 2f));
-    assertFalse(MinefieldService.detonate(2f, 2f, 1f, 1f, 1f));
+    assertTrue(MinefieldService.detonate(1f, 2f, 1f, 2f, 2f));
+    assertFalse(MinefieldService.detonate(1f, 2f, 53f, -32f, 40f));
   }
 
   @Test
   public void detonate1()
   {
+    Mine mine1 = new Mine(1L, 1f, 1f, 1f);
+    Mine mine2 = new Mine(2L, 2f, 2f, 0f);
+    List<Mine> affectedList = new ArrayList<>();
+    assertTrue(MinefieldService.detonate(mine1, mine2, affectedList));
+    affectedList.add(mine2);
+    assertFalse(MinefieldService.detonate(mine1, mine2, affectedList));
   }
 
   @Test
@@ -67,36 +73,11 @@ public class MinefieldServiceTest
   }
 
   @Test
-  public void clearField()
-  {
-  }
-
-  @Test
-  public void store()
-  {
-  }
-
-  @Test
   public void loadMinefield()
   throws Exception
   {
     MockMultipartFile file = new MockMultipartFile("file", "filename.txt", TEXT_PLAIN_VALUE,
                                                    "10 20 30\n1 2 3".getBytes(StandardCharsets.UTF_8));
     minefieldService.loadMinefield(file);
-  }
-
-  @Test
-  public void readMines()
-  {
-  }
-
-  @Test
-  public void solve()
-  {
-  }
-
-  @Test
-  public void solveForMine()
-  {
   }
 }
