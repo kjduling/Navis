@@ -1,6 +1,11 @@
 package com.navis.mines.controller;
 
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import com.navis.mines.model.Mine;
 import com.navis.mines.response.SolutionResponse;
 import com.navis.mines.service.MinefieldService;
@@ -9,6 +14,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.io.IOException;
+import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,12 +28,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.Collection;
-
-import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Api("Minefield")
 @RestController
@@ -41,41 +42,25 @@ public class MinefieldController
                 notes = "List all mines in the database",
                 response = Mine.class,
                 responseContainer = "List")
-  @ApiResponses(value = {@ApiResponse(code = 200,
-                                      message = "Success|OK"),
-                         @ApiResponse(code = 500,
-                                      message = "Internal Server Error")})
-  @GetMapping(value = "/get",
-              produces = APPLICATION_JSON_VALUE)
-  public Collection<Mine> getMines()
-  {
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "Success|OK"),
+                         @ApiResponse(code = 500, message = "Internal Server Error")})
+  @GetMapping(value = "/get", produces = APPLICATION_JSON_VALUE)
+  public Collection<Mine> getMines() {
     log.debug("getMines");
     return minefieldService.getMines();
   }
 
-  @PostMapping(value = "/upload",
-               consumes = {"multipart/form-data"})
-  @ApiOperation(value = "Upload mines",
-                notes = "Upload a list of mines and store them to the database")
-  @ApiResponses(value = {@ApiResponse(code = 200,
-                                      message = "Success|OK"),
-                         @ApiResponse(code = 400,
-                                      message = "Bad Request"),
-                         @ApiResponse(code = 500,
-                                      message = "Internal Server Error")})
-  public ResponseEntity<?> upload(@ApiParam(value = "value",
-                                            name = "name",
-                                            required = true) @RequestParam("file") MultipartFile file)
-  {
-    try
-    {
+  @PostMapping(value = "/upload", consumes = {"multipart/form-data"})
+  @ApiOperation(value = "Upload mines", notes = "Upload a list of mines and store them to the database")
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "Success|OK"),
+                         @ApiResponse(code = 400, message = "Bad Request"),
+                         @ApiResponse(code = 500, message = "Internal Server Error")})
+  public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
+    try {
       minefieldService.loadMinefield(file);
-    }
-    catch (NumberFormatException nfe)
-    {
+    } catch (NumberFormatException nfe) {
       return new ResponseEntity<>(BAD_REQUEST);
-    }
-    catch (IOException e)
+    } catch (IOException e)
     {
       return new ResponseEntity<>(INTERNAL_SERVER_ERROR);
     }
@@ -85,10 +70,8 @@ public class MinefieldController
   @DeleteMapping()
   @ApiOperation(value = "Delete mines",
                 notes = "Clear all of the mines out of the database")
-  @ApiResponses(value = {@ApiResponse(code = 200,
-                                      message = "Success|OK"),
-                         @ApiResponse(code = 500,
-                                      message = "Internal Server Error")})
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "Success|OK"),
+                         @ApiResponse(code = 500, message = "Internal Server Error")})
   public ResponseEntity<?> clearField()
   {
     log.debug("clearField");
@@ -96,16 +79,13 @@ public class MinefieldController
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
-  @GetMapping(value = "/solve",
-              produces = APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/solve", produces = APPLICATION_JSON_VALUE)
   @ApiOperation(value = "Solve for each mine",
                 notes = "Iterate through each mine, determining the best solution to explode as many as possible by only manually detonating one",
                 response = SolutionResponse.class,
                 responseContainer = "List")
-  @ApiResponses(value = {@ApiResponse(code = 200,
-                                      message = "Success|OK"),
-                         @ApiResponse(code = 500,
-                                      message = "Internal Server Error")})
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "Success|OK"),
+                         @ApiResponse(code = 500, message = "Internal Server Error")})
   @ResponseBody
   public ResponseEntity<?> solve()
   {

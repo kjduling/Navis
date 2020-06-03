@@ -29,7 +29,13 @@ To demonstrate the following skills:
  * Upload a minefield file with <br><b>POST /navis/v1/minefield/upload</b>
  * Verify the minefield was saved to the database<br><b>GET /navis/v1/minefield/get</b>
  * Find all the solutions<br><b>GET /navis/v1/minefield/solve
+ * Test data files can be found in src/test/resources/data
   
+## Code Coverage
+| Class      |      Method |  Line |
+|------------|-------------|--------------|
+| 100% (9/9) | 91% (31/34) | 89% (94/105) |
+
 ## Original Message  
 ```
 //

@@ -3,17 +3,16 @@ package com.navis.mines.service;
 import com.navis.mines.model.Mine;
 import com.navis.mines.model.Solution;
 import com.navis.mines.persistence.MinefieldRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -144,11 +143,10 @@ public class MinefieldService
     List<Mine> minefield = minefieldRepository.findAll();
     List<Solution> solutionList = new ArrayList<>();
 
-    for (Mine mine : minefield)
-    {
+    minefield.forEach(mine -> {
       log.debug("Solving for {}", mine);
       solutionList.add(solveForMine(mine, minefield));
-    }
+    });
 
     return solutionList;
   }
@@ -164,9 +162,7 @@ public class MinefieldService
   {
     List<Mine> affectedMines = new ArrayList<>();
 
-    for (Mine m : minefield)
-      if (detonate(mine, m, affectedMines))
-        affectedMines.add(m);
+    minefield.stream().filter(m -> detonate(mine, m, affectedMines)).forEach(affectedMines::add);
 
     Solution intermediate = null;
     for (Mine affected : affectedMines)
